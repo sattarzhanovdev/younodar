@@ -1,0 +1,15 @@
+import search from './search.svg'
+import profile from './profile.svg'
+import date from './date.svg'
+import expenses from './expenses.svg'
+import document from './document.svg'
+import edit from './edit.svg'
+
+export const Icons = {
+  search,
+  profile,
+  date,
+  expenses,
+  document,
+  edit
+}
