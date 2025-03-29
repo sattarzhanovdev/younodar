@@ -1,8 +1,16 @@
 import React from 'react'
 import c from './mainReport.module.scss'
 import { Icons } from '../../assets/icons'
+import { API } from '../../api'
 
 const FinancesReport = () => {
+  const [ expense, setExpense ] = React.useState(0)
+
+  React.useEffect(() => {
+    API.getDailyExpenses()
+      .then(res => setExpense(res.data))
+  }, [])
+
   return (
     <div className={c.reports}>
       <div className={c.card}>
@@ -11,7 +19,7 @@ const FinancesReport = () => {
           <h3>Итого закупа за сегодня</h3>
         </div>
         <div className={c.down}>
-          <h1>13 наименований</h1>
+          <h1>15 наименований</h1>
         </div>
       </div>
       <div className={c.card}>
@@ -20,7 +28,7 @@ const FinancesReport = () => {
           <h3>Расходы за сегодня</h3>
         </div>
         <div className={c.down}>
-          <h1>25000</h1>
+          <h1>{expense?.spent_today}</h1>
         </div>
       </div>
       <div className={c.card}>

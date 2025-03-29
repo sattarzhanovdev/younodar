@@ -6,6 +6,7 @@ const Clients = () => {
     <div>
       <Components.ClientsReport />
       <Components.ClientsTable />
+      {/* <Components.AddClient /> */}
     </div>
   )
 }

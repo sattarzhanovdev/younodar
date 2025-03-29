@@ -4,6 +4,10 @@ import date from './date.svg'
 import expenses from './expenses.svg'
 import document from './document.svg'
 import edit from './edit.svg'
+import plus from './plus.svg'
+import addGray from './addGray.svg'
+import addGreen from './addGreen.svg'
+
 
 export const Icons = {
   search,
@@ -11,5 +15,8 @@ export const Icons = {
   date,
   expenses,
   document,
-  edit
+  edit,
+  plus,
+  addGray,
+  addGreen
 }

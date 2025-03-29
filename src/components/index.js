@@ -1,3 +1,4 @@
+import AddClient from './addClient'
 import ClientsReport from './clientsReport'
 import ClientsTable from './clientsTable'
 import ExpensesReport from './expensesReport'
@@ -17,5 +18,6 @@ export const Components = {
   FinancesReport,
   FinancesTable,
   ExpensesReport,
-  ExpensesTable
+  ExpensesTable,
+  AddClient
 }

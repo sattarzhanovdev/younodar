@@ -86,7 +86,8 @@
     width: 100%;
     table{
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: separate; /* Нужно для работы border-spacing */
+      border-spacing: 0 10px; /* 10px между колонками, 0 между строками */
       thead{
         tr{
           th{
@@ -108,7 +109,9 @@
       }
       tbody{
         tr{
+          width: 100%;
           background: white;
+
           td{
             padding: 15px 0;
             font-size: 17px;

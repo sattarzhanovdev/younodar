@@ -3,10 +3,12 @@ import c from './workers.module.scss'
 import { periods } from '../../utils'
 import { Icons } from '../../assets/icons'
 import { API } from '../../api'
+import { Components } from '..'
 
 const ClientsTable = () => {
   const [ month, setMonth ] = React.useState()
   const [ clients, setClients ] = React.useState(null)
+  const [ active, setActive ] = React.useState(false)
   const months = [
     "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
       "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
@@ -74,7 +76,7 @@ const ClientsTable = () => {
     <div className={c.workers}>
       <div className={c.title}>
         <div className={c.left}>
-          <button>
+          <button onClick={() => setActive(true)}>
             + Добавить
           </button>
 
@@ -124,7 +126,8 @@ const ClientsTable = () => {
           </thead>
           <tbody>
             {
-              filteredClients && filteredClients.map(item => (
+              filteredClients?.length !== 0 ?
+              filteredClients.map(item => (
                 <tr key={item.id}>
                   <td>
                     <img src={Icons.edit} alt="edit" />
@@ -156,11 +159,35 @@ const ClientsTable = () => {
                   : 0}
                 </td>
                 </tr>
-              ))
+              )) :
+              <tr>
+                  <td>
+                    <img src={Icons.edit} alt="edit" />
+                  </td>
+                  <td>
+                    Клиентов нет
+                  </td>
+                  <td></td>
+                  <td></td>
+                  <td className={c.services}>
+
+                  </td>
+                  <td>
+
+                  </td>
+                  <td>
+                  </td>
+              </tr>
             }
           </tbody>
         </table>
       </div>
+
+      {
+        active ?
+        <Components.AddClient setActive={setActive} /> :
+        null
+      }
     </div>
   )
 }

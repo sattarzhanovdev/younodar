@@ -1,15 +1,22 @@
 import React from 'react'
 import c from './workers.module.scss'
 import { periods } from '../../utils'
+import { API } from '../../api'
 
 const WorkersBenefit = () => {
   const [ month, setMonth ] = React.useState()
   const [ period, setPeriod ] = React.useState(1)
+  const [ workers, setWorkers ] = React.useState(null)
 
   React.useEffect(() => {
     const date = new Date()
     const month = date.toLocaleString('ru', { month: 'long' })
     setMonth(month.slice(0, 1).toUpperCase() + month.slice(1))
+  }, [])
+
+  React.useEffect(() => {
+    API.getWorkers()
+      .then(res => setWorkers(res.data))
   }, [])
 
   return (
@@ -52,14 +59,18 @@ const WorkersBenefit = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>Иванов Иван</td>
-              <td>5600.00$</td>
-              <td>250.00$</td>
-              <td>5600.00$</td>
-              <td>250</td>
-            </tr>
+            {
+              workers && workers.map((item, i) => (
+                <tr key={i}>
+                  <td>{i+1}</td>
+                  <td>{item.name}</td>
+                  <td>5600.00$</td>
+                  <td>250.00$</td>
+                  <td>5600.00$</td>
+                  <td>250</td>
+                </tr>
+              ))
+            }
           </tbody>
         </table>
       </div>

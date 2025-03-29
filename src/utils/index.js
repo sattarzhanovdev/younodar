@@ -30,6 +30,11 @@ export const NavList = [
     id: 6,
     title: 'Склад',
     route: '/stock'
+  },
+  {
+    id: 7,
+    title: 'Total day',
+    route: '/total-day'
   }
 ]
 
