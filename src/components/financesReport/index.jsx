@@ -19,7 +19,7 @@ const FinancesReport = () => {
           <h3>Итого закупа за сегодня</h3>
         </div>
         <div className={c.down}>
-          <h1>15 наименований</h1>
+          <h1>{expense.added_today} наименований</h1>
         </div>
       </div>
       <div className={c.card}>
@@ -28,7 +28,7 @@ const FinancesReport = () => {
           <h3>Расходы за сегодня</h3>
         </div>
         <div className={c.down}>
-          <h1>{expense?.spent_today}</h1>
+          <h1>{expense?.spent_today} сом</h1>
         </div>
       </div>
       <div className={c.card}>
@@ -37,7 +37,7 @@ const FinancesReport = () => {
           <h3>Расходов за месяц</h3>
         </div>
         <div className={c.down}>
-          <h1>450 000 сом</h1>
+          <h1>{expense?.expense_this_month} сом</h1>
         </div>
       </div>
     </div>

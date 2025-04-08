@@ -7,6 +7,7 @@ import edit from './edit.svg'
 import plus from './plus.svg'
 import addGray from './addGray.svg'
 import addGreen from './addGreen.svg'
+import status from './status.svg'
 
 
 export const Icons = {
@@ -18,5 +19,6 @@ export const Icons = {
   edit,
   plus,
   addGray,
-  addGreen
+  addGreen,
+  status
 }

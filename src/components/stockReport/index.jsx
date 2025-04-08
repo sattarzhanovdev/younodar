@@ -3,15 +3,13 @@ import c from './mainReport.module.scss'
 import { Icons } from '../../assets/icons'
 import { API } from '../../api'
 
-const ExpensesReport = () => {
+const StockReport = () => {
   const [data, setData] = React.useState([])
 
   React.useEffect(() => {
-    API.getExpenses()
-      .then(res => setData(res.data))
-      .catch(err => {
-        console.error('Ошибка загрузки данных:', err);
-        setData([]);
+    API.getStocks()
+      .then(res => {
+        setData(res.data);
       });
   }, [])
 
@@ -39,7 +37,7 @@ const ExpensesReport = () => {
           <h3>Израсходовано за сегодня</h3>
         </div>
         <div className={c.down}>
-          <h1>{addedToday.length} наименований</h1>
+          <h1>{data.reduce((a, b) => a+Number(b.minusToday), 0)} наименований</h1>
         </div>
       </div>
 
@@ -49,11 +47,11 @@ const ExpensesReport = () => {
           <h3>Добавлено сегодня</h3>
         </div>
         <div className={c.down}>
-          <h1>{addedToday.length} наименований</h1>
+          <h1>0 наименований</h1>
         </div>
       </div>
     </div>
   )
 }
 
-export default ExpensesReport
+export default StockReport

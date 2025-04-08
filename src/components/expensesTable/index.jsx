@@ -1,11 +1,13 @@
 import React from 'react'
 import c from './workers.module.scss'
 import { API } from '../../api'
+import { Components } from '..'
 
 const ExpensesTable = () => {
   const [ month, setMonth ] = React.useState()
   const [ period, setPeriod ] = React.useState(1)
   const [ data, setData ] = React.useState(null)
+  const [ active, setActive ] = React.useState(false)
 
   React.useEffect(() => {
     const date = new Date()
@@ -15,7 +17,7 @@ const ExpensesTable = () => {
 
   React.useEffect(() => {
     API.getExpenses()
-      .then(res => setData(res.data))
+      .then(res => setData(res.data.reverse()))
   }, [])
 
   return (
@@ -29,7 +31,7 @@ const ExpensesTable = () => {
               <th>Добавлено за сегодня</th>
               <th>
                 Израсходовано за сегодня
-                <button>
+                <button onClick={() => setActive(true)}>
                   + Добавить
                 </button>
               </th>
@@ -41,7 +43,7 @@ const ExpensesTable = () => {
                 <tr>
                   <td>{item.name}</td>
                   <td>{item.amount}</td>
-                  <td>5 единиц</td>
+                  <td>{item.quantity} {item.unit === 'единица' ? 'единиц' : item.unit}</td>
                   <td>5 единиц</td>
                 </tr>
               ))
@@ -49,6 +51,11 @@ const ExpensesTable = () => {
           </tbody>
         </table>
       </div>
+      {
+        active ?
+        <Components.AddExpense setActive={setActive} /> :
+        null
+      }
     </div>
   )
 }

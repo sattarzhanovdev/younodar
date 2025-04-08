@@ -5,7 +5,7 @@ import { InputMask } from '@react-input/mask';
 import { API } from '../../api';
 import { Components } from '..';
 
-const AddClient = ({setActive}) => {
+const EditClient = ({setActive}) => {
   const [count, setCount] = React.useState(1)
   const [workers, setWorkers] = React.useState(null)
   const [countSells, setCountSell] = React.useState(1)
@@ -96,7 +96,26 @@ const AddClient = ({setActive}) => {
   return (
     <div className={c.add}>
       <div className={c.client}>
-        <h2>Добавление клиента</h2>
+        <h2>Клиент:
+          <form>
+            <div>
+              <input type="radio" id="payed" />
+              <label htmlFor="payed">Оплачено</label>
+            </div>
+            <div>
+              <input type="radio" id="rent" />
+              <label htmlFor="rent">Бронь</label>
+            </div>
+            <div>
+              <input type="radio" id="canceled" />
+              <label htmlFor="canceled">Отмена</label>
+            </div>
+            <div>
+              <input type="radio" id="transfer" />
+              <label htmlFor="transfer">Перенос</label>
+            </div>
+          </form>
+        </h2>
         <form>
           <div>
             <span>Имя клиента</span>
@@ -156,26 +175,12 @@ const AddClient = ({setActive}) => {
             </div>
             <div>
               <span>Назначенный</span>
-              {/* <input
+              <input
                 type="text"
                 placeholder="Введите назначенного"
                 value={service.assigned}
                 onChange={e => updateArrayField('services', index, 'assigned', e.target.value)}
-                /> */}
-                <select>
-                  
-                  {
-                    workers?.map(item => (
-                      <option
-                        key={item.id}
-                        value={item.name}
-                        onClick={() => updateArrayField('services', index, 'assigned', item.name)}
-                      >
-                        {item.name}
-                      </option>
-                    ))
-                  }
-                </select>
+                />
             </div>
             <div>
               <span>Стоимость услуг</span>
@@ -377,4 +382,4 @@ const AddClient = ({setActive}) => {
   )
 }
 
-export default AddClient
+export default EditClient

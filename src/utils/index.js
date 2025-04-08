@@ -85,12 +85,12 @@ export const PUBLIC_ROUTES = [
   },
   {
     id: 5,
-    page: <Pages.Purchases />,
+    page: <Pages.Finances />,
     route: '/purchases'
   },
   {
     id: 6,
-    page: <Pages.Stock />,
+    page: <Pages.Storage />,
     route: '/stock'
   }
 ]
