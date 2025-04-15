@@ -6,7 +6,7 @@ import { API } from '../../api'
 const Kassa = () => {
   const [ month, setMonth ] = React.useState()
   const [ period, setPeriod ] = React.useState(1)
-  const [ workers, setWorkers ] = React.useState(null)
+  const [ data, setData ] = React.useState(null)
 
   React.useEffect(() => {
     const date = new Date()
@@ -15,8 +15,8 @@ const Kassa = () => {
   }, [])
 
   React.useEffect(() => {
-    API.getWorkers()
-      .then(res => setWorkers(res.data))
+    API.getCashInfo()
+      .then(res => setData(res.data))
   }, [])
 
   return (
@@ -59,14 +59,18 @@ const Kassa = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>12 марта</td>
-              <td>5600.00$</td>
-              <td>250.00$</td>
-              <td>5600.00$</td>
-              <td>250</td>
-            </tr>            
+            {
+              data && data?.map((item, i) => (
+                <tr>
+                  <td>{i+1}</td>
+                  <td>{item.date}</td>
+                  <td>{item.revenue}</td>
+                  <td>{item.profit}</td>
+                  <td>{item.balance}</td>
+                  <td>{item.count}</td>
+                </tr>        
+              ))
+            }    
           </tbody>
         </table>
       </div>

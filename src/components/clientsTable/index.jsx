@@ -27,11 +27,7 @@ const ClientsTable = () => {
   React.useEffect(() => {
     API.getClients()
       .then(res => {
-        const data = Object.keys(res.data).map(key => ({
-          ...res.data[key],
-          id: key,
-        }));
-        setClients(data);
+        setClients(res.data);
       });
   }, []);
 
@@ -128,7 +124,12 @@ const ClientsTable = () => {
             {Array.isArray(filteredClients) && filteredClients.length > 0 ? (
               filteredClients.reverse().map(item => (
                 <tr key={item.id}>
-                  <td onClick={() => setEditActive(true)}>
+                  <td onClick={() => {
+                    console.log(item);
+                    
+                    localStorage.setItem('clientId', item.id);
+                    setEditActive(true)
+                  }}>
                     <img src={Icons.edit} alt="edit" />
                   </td>
                   <td>

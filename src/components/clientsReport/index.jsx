@@ -11,21 +11,13 @@ const ClientsReport = () => {
   });
 
   React.useEffect(() => {
-    API.getDailyClients()
-      .then(res => {
-        setDailyReport(prev => ({ ...prev, clients: res.data.clients_added_today }));
-      });
-
-    API.getDailyExpenses()
-      .then(res => {
-        setDailyReport(prev => ({ ...prev, expenses: res.data.spent_today }));
-      });
-
     API.getMonthlyData()
       .then(res => {
         setDailyReport(prev => ({
           ...prev,
-          daily: res.data.daily_profit
+          daily: res.data.daily_profit, 
+          expenses: res.data.daily_expense, 
+          clients: res.data.daily_clients
         }));
       });
   }, []);

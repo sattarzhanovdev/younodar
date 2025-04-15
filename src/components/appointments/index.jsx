@@ -10,26 +10,22 @@ const Appointments = () => {
   const todayDate = `${date.getFullYear()}-${(date.getMonth() + 1) < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${date.getDate()}`
   
 
-  React.useEffect(() => {
-    API.getWorkers()
-      .then(res => {
+    React.useEffect(() => {
+      API.getWorkers().then(res => {
         const workersData = res.data;
         setWorkers(workersData);
-  
-        const workerNames = workersData.map(worker => worker.name);
   
         API.getClients().then(res => {
           const clients = res.data;
   
           const result = workersData.map(worker => {
-            // По каждому работнику собираем его записи
             const appointments = [];
   
             clients.forEach(client => {
               if (client.appointment_date === todayDate) {
                 client.services.forEach(service => {
                   if (service.assigned === worker.name) {
-                    appointments.push(`${client.time} - ${service.name}`);
+                    appointments.push(`${service.time} - ${service.name}`);
                   }
                 });
               }
@@ -39,14 +35,12 @@ const Appointments = () => {
               name: worker.name,
               appointments
             };
-          }).filter(item => item.appointments.length > 0); // убираем тех, у кого нет записей
+          });
   
-          setAppointments(result)
-          console.log(result);
-          
+          setAppointments(result);
         });
       });
-  }, []);
+    }, []);
 
   appointments?.map(item => {
     item.appointments.map(service => {
@@ -61,7 +55,7 @@ const Appointments = () => {
           Записи сотрудников
         </h1>
         <span>
-          14 марта
+          {date.getDate()} {date.toLocaleString('ru-RU', { month: 'long' })}
         </span>
       </div>
 

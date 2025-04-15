@@ -38,7 +38,8 @@ const AddClient = ({setActive}) => {
         name: '',
         assigned: '',
         price: '',
-        cabinet: ''
+        cabinet: '', 
+        time: ''
       })
     }));
   }, [count]);
@@ -55,42 +56,40 @@ const AddClient = ({setActive}) => {
   }, [countSells]);
 
   React.useEffect(() => {
-      API.getWorkers()
-        .then(res => {
-          const workersData = res.data;
-          setWorkers(workersData);
-    
-          const workerNames = workersData.map(worker => worker.name);
-    
-          API.getClients().then(res => {
-            const clients = res.data;
-    
-            const result = workersData.map(worker => {
-              // По каждому работнику собираем его записи
-              const appointments = [];
-    
-              clients.forEach(client => {
-                if (client.appointment_date === todayDate) {
-                  client.services.forEach(service => {
-                    if (service.assigned === worker.name) {
-                      appointments.push(`${client.time} - ${service.name}`);
-                    }
-                  });
-                }
-              });
-    
-              return {
-                name: worker.name,
-                appointments
-              };
-            }).filter(item => item.appointments.length > 0); // убираем тех, у кого нет записей
-    
-            setAppointments(result)
-            console.log(result);
-            
+    API.getWorkers()
+      .then(res => {
+        const workersData = res.data;
+        setWorkers(workersData);
+  
+        const workerNames = workersData.map(worker => worker.name);
+  
+        API.getClients().then(res => {
+          const clients = res.data;
+  
+          const result = workersData.map(worker => {
+            const appointments = [];
+  
+            clients.forEach(client => {
+              if (client.appointment_date === todayDate) {
+                client.services.forEach(service => {
+                  if (service.assigned === worker.name) {
+                    appointments.push(`${service.time} - ${service.name}`);
+                  }
+                });
+              }
+            });
+  
+            return {
+              name: worker.name,
+              appointments
+            };
           });
+  
+          setAppointments(result);
+          console.log(result);
         });
-    }, []);
+      });
+  }, []);
 
 
   const updateArrayField = (arrayKey, index, field, value) => {
@@ -231,6 +230,17 @@ const AddClient = ({setActive}) => {
                         "price",
                         e.target.value
                       )
+                    }
+                  />
+                </div>
+                <div>
+                  <span>Время</span>
+                  <InputMask
+                    mask="__:__"
+                    placeholder="Время посещения клиента"
+                    replacement={{ _: /\d/ }}
+                    onChange={(e) =>
+                      updateArrayField('services', index, 'time', e.target.value)
                     }
                   />
                 </div>

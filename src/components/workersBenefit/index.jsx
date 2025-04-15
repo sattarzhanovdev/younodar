@@ -15,9 +15,14 @@ const WorkersBenefit = () => {
   }, [])
 
   React.useEffect(() => {
-    API.getWorkers()
+    API.getStaffInfo()
       .then(res => setWorkers(res.data))
   }, [])
+
+  const handlePeriodChange = (id) => {
+    API.getStaffInfoWeek(id)
+      .then(res => setWorkers(res.data))
+  }
 
   return (
     <div className={c.workers}>
@@ -38,7 +43,14 @@ const WorkersBenefit = () => {
           <div className={c.periods}>
             {
               periods.map(item => (
-                <button key={item.id} className={period === item.id ? c.active : ''} onClick={() => setPeriod(item.id)}>
+                <button 
+                  key={item.id} 
+                  className={period === item.id ? c.active : ''} 
+                  onClick={() => {
+                    handlePeriodChange(item.id)
+                    setPeriod(item.id)
+                  }}
+                >
                   {item.title}
                 </button>
               ))
@@ -64,10 +76,10 @@ const WorkersBenefit = () => {
                 <tr key={i}>
                   <td>{i+1}</td>
                   <td>{item.name}</td>
-                  <td>5600.00$</td>
-                  <td>250.00$</td>
-                  <td>5600.00$</td>
-                  <td>250</td>
+                  <td>{item.revenue}</td>
+                  <td>{item.profit}</td>
+                  <td>{item.balance}</td>
+                  <td>{item.count}</td>
                 </tr>
               ))
             }

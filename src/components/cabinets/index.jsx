@@ -2,6 +2,8 @@ import React from 'react'
 import c from './appointments.module.scss'
 
 const Cabinets = () => {
+  const date = new Date()
+  
   return (
     <div className={c.appointments}>
       <div className={c.header}>
@@ -9,7 +11,7 @@ const Cabinets = () => {
           Нагрузка кабинетов
         </h1>
         <span>
-          14 марта
+          {date.getDate()} {date.toLocaleString('ru-RU', { month: 'long' })}
         </span>
       </div>
 

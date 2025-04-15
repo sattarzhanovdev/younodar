@@ -6,13 +6,13 @@ import { API } from '../../api';
 import { Components } from '..';  
 
 const EditClient = ({setActive}) => {
-  const [count, setCount] = React.useState(1)
-  const [workers, setWorkers] = React.useState(null)
-  const [countSells, setCountSell] = React.useState(1)
-  const [ active, setActiveState ] = React.useState(false)
-  const [ type, setType ] = React.useState('')
-  const [ appointments, setAppointments ] = React.useState(null)  
-  const [ data, setData ] = React.useState({
+  const [count, setCount] = React.useState(1);
+  const [workers, setWorkers] = React.useState(null);
+  const [countSells, setCountSell] = React.useState(1);
+  const [active, setActiveState] = React.useState(false);
+  const [type, setType] = React.useState('');
+  const [appointments, setAppointments] = React.useState(null);
+  const [data, setData] = React.useState({
     name: '',
     phone: '',
     date: '',
@@ -21,15 +21,18 @@ const EditClient = ({setActive}) => {
     product: [],
     payment: '',
     status: '',
-  })
+  });
 
-  const date = new Date()
-  const todayDate = `${date.getFullYear()}-${(date.getMonth() + 1) < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${date.getDate()}`
+  const clientId = localStorage.getItem('clientId');
+
+  const date = new Date();
+  const todayDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+    .toString()
+    .padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
 
   React.useEffect(() => {
-    API.getWorkers()
-      .then(res => setWorkers(res.data))
-  }, [])
+    API.getWorkers().then(res => setWorkers(res.data));
+  }, []);
 
   React.useEffect(() => {
     setData(prev => ({
@@ -38,7 +41,8 @@ const EditClient = ({setActive}) => {
         name: '',
         assigned: '',
         price: '',
-        cabinet: ''
+        cabinet: '',
+        time: ''
       })
     }));
   }, [count]);
@@ -55,43 +59,73 @@ const EditClient = ({setActive}) => {
   }, [countSells]);
 
   React.useEffect(() => {
-      API.getWorkers()
-        .then(res => {
-          const workersData = res.data;
-          setWorkers(workersData);
-    
-          const workerNames = workersData.map(worker => worker.name);
-    
-          API.getClients().then(res => {
-            const clients = res.data;
-    
-            const result = workersData.map(worker => {
-              // По каждому работнику собираем его записи
-              const appointments = [];
-    
-              clients.forEach(client => {
-                if (client.appointment_date === todayDate) {
-                  client.services.forEach(service => {
-                    if (service.assigned === worker.name) {
-                      appointments.push(`${client.time} - ${service.name}`);
-                    }
-                  });
+    API.getWorkers().then(res => {
+      const workersData = res.data;
+      setWorkers(workersData);
+
+      API.getClients().then(res => {
+        const clients = res.data;
+
+        const result = workersData.map(worker => {
+          const appointments = [];
+
+          clients.forEach(client => {
+            if (client.appointment_date === todayDate) {
+              client.services.forEach(service => {
+                if (service.assigned === worker.name) {
+                  appointments.push(`${service.time} - ${service.name}`);
                 }
               });
-    
-              return {
-                name: worker.name,
-                appointments
-              };
-            }).filter(item => item.appointments.length > 0); // убираем тех, у кого нет записей
-    
-            setAppointments(result)
-            console.log(result);
-            
+            }
           });
-        });
-    }, []);
 
+          return {
+            name: worker.name,
+            appointments
+          };
+        });
+
+        setAppointments(result);
+      });
+    });
+  }, []);
+
+  React.useEffect(() => {
+    if (clientId) {
+      API.getClientById(clientId)
+        .then(res => {
+          const client = res.data;
+
+          setData({
+            name: client.name || '',
+            phone: client.phone || '',
+            date: client.appointment_date || '',
+            time: client.time || '',
+            services: client.services?.map(service => ({
+              ...service,
+              name: service.name || '',
+              assigned: service.assigned || '',
+              price: service.price || '',
+              cabinet: service.cabinet || '',
+              time: service.time || ''
+            })) || [],
+            product: client.product?.map(prod => ({
+              name: prod.name || '',
+              price: prod.price || '',
+              amount: prod.amount || ''
+            })) || [],
+            payment: client.payment || '',
+            status: client.status || ''
+          });
+
+          setCount(client.services?.length || 1);
+          setCountSell(client.product?.length || 1);
+        })
+        .catch(err => {
+          console.error('Ошибка при загрузке клиента:', err);
+        });
+    }
+  }, []);
 
   const updateArrayField = (arrayKey, index, field, value) => {
     setData(prev => {
@@ -109,30 +143,44 @@ const EditClient = ({setActive}) => {
       ...data,
       appointment_date: data.date,
       time: data.time
+    };
+
+    if (clientId) {
+      API.updateClient(clientId, dataRes)
+        .then(() => {
+          alert('Клиент успешно обновлён');
+          localStorage.removeItem('clientId');
+          setActive(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert('Ошибка при обновлении клиента');
+        });
+    } else {
+      API.postClient(dataRes)
+        .then(() => {
+          alert('Клиент успешно добавлен');
+          setActive(false);
+        })
+        .catch((err) => {
+          console.error(err);
+          alert('Ошибка при добавлении клиента');
+        });
     }
-    
-    console.log(dataRes);
-    
+  };
 
-
-    API.postClient(dataRes)
-      .then(res => {
-        alert('Клиент успешно добавлен')
-        setActive(false)
-      })
-  }
-
-  const timeData = JSON.parse(localStorage.getItem('time'))
-  const cabinetData = JSON.parse(localStorage.getItem('cabinetData'))
+  const timeData = JSON.parse(localStorage.getItem('time'));
+  const cabinetData = JSON.parse(localStorage.getItem('cabinetData'));
 
   React.useEffect(() => {
-    if (!timeData) {
-      localStorage.setItem('time', JSON.stringify([]))
-    }
-    if (!cabinetData) {
-      localStorage.setItem('cabinetData', JSON.stringify([]))
-    }
-  }, [])
+    if (!timeData) localStorage.setItem('time', JSON.stringify([]));
+    if (!cabinetData) localStorage.setItem('cabinetData', JSON.stringify([]));
+  }, []);
+
+
+  console.log(data);
+  
+
   return (
     <div className={c.add}>
       <div className={c.client}>
