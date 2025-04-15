@@ -121,11 +121,12 @@ const ClientsTable = () => {
               <th className={c.services}>Процедуры</th>
               <th>Сотрудник</th>
               <th>Прайс по итогу</th>
+              <th>Статус</th>
             </tr>
           </thead>
           <tbody>
             {Array.isArray(filteredClients) && filteredClients.length > 0 ? (
-              filteredClients.map(item => (
+              filteredClients.reverse().map(item => (
                 <tr key={item.id}>
                   <td onClick={() => setEditActive(true)}>
                     <img src={Icons.edit} alt="edit" />
@@ -148,9 +149,11 @@ const ClientsTable = () => {
                     )}
                   </td>
                   <td>
-                    <div className={c.worker}>
-                      {item?.master?.data[0]?.master || '-'}
-                    </div>
+                    {item?.services?.map(service => (
+                      <div key={service.id} className={c.worker}>
+                        {service.assigned}
+                      </div>
+                    ))}
                   </td>
                   <td>
                     {Array.isArray(item?.services)
@@ -159,6 +162,11 @@ const ClientsTable = () => {
                           ? item.product.reduce((sum, obj) => sum + (Number(obj.price || 0) * Number(obj.amount || 0)), 0)
                           : 0)
                       : 0}
+                  </td>
+                  <td>
+                    {
+                      item.status
+                    }
                   </td>
                 </tr>
               ))
@@ -173,7 +181,7 @@ const ClientsTable = () => {
       </div>
 
       {active && <Components.AddClient setActive={setActive} />}
-      {editActive && <Components.EditClient setEditActive={setEditActive} />}
+      {editActive && <Components.EditClient setActive={setEditActive} />}
     </div>
   );
 };

@@ -14,6 +14,9 @@ import Navbar from './navbar'
 import StockReport from './stockReport'
 import StockTable from './stockTable'
 import WorkersBenefit from './workersBenefit'
+import Kassa from './kassa'
+import Appointments from './appointments'
+import Cabinets from './cabinets'
 
 export const Components = {
   Navbar,
@@ -21,6 +24,9 @@ export const Components = {
   MainReport,
 
   WorkersBenefit,
+  Kassa,
+  Appointments,
+  Cabinets,
 
   ClientsReport,
   ClientsTable,

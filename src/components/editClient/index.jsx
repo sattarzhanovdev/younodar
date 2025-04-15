@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
+import React from 'react'
 import c from './add.module.scss'
 import { Icons } from '../../assets/icons'
 import { InputMask } from '@react-input/mask';
 import { API } from '../../api';
-import { Components } from '..';
+import { Components } from '..';  
 
 const EditClient = ({setActive}) => {
   const [count, setCount] = React.useState(1)
@@ -11,6 +11,7 @@ const EditClient = ({setActive}) => {
   const [countSells, setCountSell] = React.useState(1)
   const [ active, setActiveState ] = React.useState(false)
   const [ type, setType ] = React.useState('')
+  const [ appointments, setAppointments ] = React.useState(null)  
   const [ data, setData ] = React.useState({
     name: '',
     phone: '',
@@ -18,13 +19,12 @@ const EditClient = ({setActive}) => {
     time: '',
     services: [],
     product: [],
-    master: [],
-    cabinet: {
-      name: '',
-      time: ''
-    },
-    payment: ''
+    payment: '',
+    status: '',
   })
+
+  const date = new Date()
+  const todayDate = `${date.getFullYear()}-${(date.getMonth() + 1) < 10 ? `0${date.getMonth() + 1}` : date.getMonth() + 1}-${date.getDate()}`
 
   React.useEffect(() => {
     API.getWorkers()
@@ -37,7 +37,8 @@ const EditClient = ({setActive}) => {
       services: Array.from({ length: count }, (_, i) => prev.services[i] || {
         name: '',
         assigned: '',
-        price: ''
+        price: '',
+        cabinet: ''
       })
     }));
   }, [count]);
@@ -52,6 +53,44 @@ const EditClient = ({setActive}) => {
       })
     }));
   }, [countSells]);
+
+  React.useEffect(() => {
+      API.getWorkers()
+        .then(res => {
+          const workersData = res.data;
+          setWorkers(workersData);
+    
+          const workerNames = workersData.map(worker => worker.name);
+    
+          API.getClients().then(res => {
+            const clients = res.data;
+    
+            const result = workersData.map(worker => {
+              // По каждому работнику собираем его записи
+              const appointments = [];
+    
+              clients.forEach(client => {
+                if (client.appointment_date === todayDate) {
+                  client.services.forEach(service => {
+                    if (service.assigned === worker.name) {
+                      appointments.push(`${client.time} - ${service.name}`);
+                    }
+                  });
+                }
+              });
+    
+              return {
+                name: worker.name,
+                appointments
+              };
+            }).filter(item => item.appointments.length > 0); // убираем тех, у кого нет записей
+    
+            setAppointments(result)
+            console.log(result);
+            
+          });
+        });
+    }, []);
 
 
   const updateArrayField = (arrayKey, index, field, value) => {
@@ -68,11 +107,12 @@ const EditClient = ({setActive}) => {
   const handleAddClient = () => {
     const dataRes = {
       ...data,
-      master: { data: timeData, time: data.time },
-      cabinet: { data: cabinetData, time: data.date},
       appointment_date: data.date,
       time: data.time
     }
+    
+    console.log(dataRes);
+    
 
 
     API.postClient(dataRes)
@@ -96,34 +136,17 @@ const EditClient = ({setActive}) => {
   return (
     <div className={c.add}>
       <div className={c.client}>
-        <h2>Клиент:
-          <form>
-            <div>
-              <input type="radio" id="payed" />
-              <label htmlFor="payed">Оплачено</label>
-            </div>
-            <div>
-              <input type="radio" id="rent" />
-              <label htmlFor="rent">Бронь</label>
-            </div>
-            <div>
-              <input type="radio" id="canceled" />
-              <label htmlFor="canceled">Отмена</label>
-            </div>
-            <div>
-              <input type="radio" id="transfer" />
-              <label htmlFor="transfer">Перенос</label>
-            </div>
-          </form>
-        </h2>
+        <h2>Изменение клиента</h2>
         <form>
           <div>
             <span>Имя клиента</span>
             <input
               type="text"
-              placeholder='Введите имя клиента'
+              placeholder="Введите имя клиента"
               value={data.name}
-              onChange={e => setData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) =>
+                setData((prev) => ({ ...prev, name: e.target.value }))
+              }
             />
           </div>
           <div>
@@ -133,7 +156,9 @@ const EditClient = ({setActive}) => {
               placeholder="Введите номер телефона"
               replacement={{ _: /\d/ }}
               value={data.phone}
-              onChange={e => setData(prev => ({ ...prev, phone: e.target.value }))}
+              onChange={(e) =>
+                setData((prev) => ({ ...prev, phone: e.target.value }))
+              }
             />
           </div>
           <div>
@@ -143,7 +168,9 @@ const EditClient = ({setActive}) => {
               placeholder="Дата посещения клиента"
               replacement={{ _: /\d/ }}
               value={data.date}
-              onChange={e => setData(prev => ({ ...prev, date: e.target.value }))}
+              onChange={(e) =>
+                setData((prev) => ({ ...prev, date: e.target.value }))
+              }
             />
           </div>
           <div>
@@ -153,137 +180,144 @@ const EditClient = ({setActive}) => {
               placeholder="Время посещения клиента"
               replacement={{ _: /\d/ }}
               value={data.time}
-              onChange={e => setData(prev => ({ ...prev, time: e.target.value }))}
+              onChange={(e) =>
+                setData((prev) => ({ ...prev, time: e.target.value }))
+              }
             />
           </div>
         </form>
       </div>
-      <div className={c.servicesAdd} >
+      <div className={c.servicesAdd}>
         <h2>Добавление услуг</h2>
         <form>
-        {
-          data.services.map((service, index) => (
-          <div key={index} className={c.values}>
-            <div>
-              <span>Наименование услуги</span>
-              <input
-                type="text"
-                placeholder="Введите наименование услуги"
-                value={service.name}
-                onChange={e => updateArrayField('services', index, 'name', e.target.value)}
-              />
+          {data.services.map((service, index) => (
+            <div key={index} className={c.valuesNew}>
+              <div className={c.valuesIn}>
+                <div>
+                  <span>Наименование услуги</span>
+                  <input
+                    type="text"
+                    placeholder="Введите наименование услуги"
+                    value={service.name}
+                    onChange={(e) =>
+                      updateArrayField(
+                        "services",
+                        index,
+                        "name",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+                <div>
+                  <span>Назначенный</span>
+                  <input
+                    type="text"
+                    placeholder="Введите назначенного"
+                    value={service.assigned}
+                  />
+        
+                </div>
+                <div>
+                  <span>Стоимость услуг</span>
+                  <input
+                    type="number"
+                    placeholder="Введите стоимость"
+                    value={service.price}
+                    onChange={(e) =>
+                      updateArrayField(
+                        "services",
+                        index,
+                        "price",
+                        e.target.value
+                      )
+                    }
+                  />
+                </div>
+              </div>
+              <div className={c.services}>
+                <form>
+                  <div>
+                    {appointments?.map((item) => {
+                      // Сортируем приёмы по времени
+                      const sortedAppointments = [...(item.appointments || [])].sort((a, b) => {
+                        const timeA = a.split(' - ')[0];
+                        const timeB = b.split(' - ')[0];
+                        return timeA.localeCompare(timeB);
+                      });
+
+                      let prevTimeMinutes = null;
+
+                      return (
+                        <label
+                          onChange={() => updateArrayField('services', index, 'assigned', item.name)}
+                          key={item.id}
+                        >
+                          <input type="radio" name="option" />
+                          <p>{item.name}</p>
+                          <div className={c.times}>
+                            {sortedAppointments.map((timeStr, id) => {
+                              const [time] = timeStr.split(' - ');
+                              const [hours, minutes] = time.split(':').map(Number);
+                              const currentTimeMinutes = hours * 60 + minutes;
+
+                              let className = '';
+
+                              if (prevTimeMinutes !== null) {
+                                const diff = currentTimeMinutes - prevTimeMinutes;
+                                if (diff >= 180) {
+                                  className = c.hard;
+                                } else if (diff >= 90) {
+                                  className = c.medium;
+                                }
+                              }
+
+                              prevTimeMinutes = currentTimeMinutes;
+
+                              return (
+                                <span key={id} className={className}>
+                                  {timeStr}
+                                </span>
+                              );
+                            })}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </form>
+                <form>
+                  <div>
+                    <label
+                      onChange={() => updateArrayField('services', index, 'cabinet', "Кабинет 1")}
+                    >
+                      <input type="radio" name="option" />
+                      <p>Кабинет 1</p>
+                      <div className={c.times}>
+                        {cabinetData?.length > 0
+                          ? cabinetData?.map((time, id) => (
+                              <span key={id}>
+                                {time.time} - {time.name}
+                              </span>
+                            ))
+                          : null}
+                      </div>
+                    </label>
+                  </div>
+                </form>
+              </div>
             </div>
-            <div>
-              <span>Назначенный</span>
-              <input
-                type="text"
-                placeholder="Введите назначенного"
-                value={service.assigned}
-                onChange={e => updateArrayField('services', index, 'assigned', e.target.value)}
-                />
-            </div>
-            <div>
-              <span>Стоимость услуг</span>
-              <input
-                type="number"
-                placeholder="Введите стоимость"
-                value={service.price}
-                onChange={e => updateArrayField('services', index, 'price', e.target.value)}
-                />
-            </div>
-          </div>
-          ))
-        }
+          ))}
         </form>
         <button onClick={() => setCount(count + 1)}>
           <img src={Icons.plus} alt="plus" />
           Добавить услугу
         </button>
       </div>
-      <div className={c.client}>
-        <h2>Распределение клиента</h2>
-
-        <div className={c.services}>
-          <h3>Выбор мастера:</h3>
-          <form>
-            <div>
-              {
-                workers?.map(item => (
-                  <label onClick={() => setData(prev => ({
-                    ...prev,
-                    master: {
-                      ...prev.master,
-                      name: item.name,
-                      time: '22:00'
-                    }
-                  }))} key={item.id}>
-                    <input type="radio" name="option" />
-                    <p>{item.name}</p>
-                    <div className={c.times}>
-                      {
-                        timeData?.length > 0 ?
-                        timeData?.map((time, id) => (
-                          <span key={id}>{time.time} - {time.name}</span>
-                        ))
-                        :
-                        null
-                      }
-                      <span className={c.adding} onClick={() => {
-                        setActiveState(true)
-                        localStorage.setItem('master', JSON.stringify(item.name))
-                        setType('time')
-                      }}>
-                        <img src={Icons.addGray} alt="" />
-                        Введите назначенное время
-                      </span>
-                    </div>
-                  </label>
-                ))
-              }
-            </div>
-          </form>
-          <h3>Выбор кабинета:</h3>
-          <form>
-            <div>
-              <label onClick={() => setData(prev => ({
-                ...prev,
-                cabinet: {
-                  ...prev.cabinet,
-                  name: 'Кабинет 1',
-                  time: '22:00'
-                }
-              }))}>
-                <input type="radio" name="option" />
-                <p>Кабинет 1</p>
-                <div className={c.times}>
-                  {
-                    cabinetData?.length > 0 ?
-                    cabinetData?.map((time, id) => (
-                      <span key={id}>{time.time} - {time.name}</span>
-                    ))
-                    :
-                    null
-                  }
-                  <span className={c.adding} onClick={() => {
-                      setActiveState(true)
-                      localStorage.setItem('cabinet', JSON.stringify('Кабинет 1'))
-                      setType('cabinet')
-                    }}>
-                    <img src={Icons.addGray} alt="" />
-                    Введите назначенное время
-                  </span>
-                </div>
-              </label>
-            </div>
-          </form>
-        </div>
-
-      </div>
       <div className={c.servicesAdd}>
         <h2>Добавление продаж</h2>
         <form>
-          {
-            data.product.map((prod, index) => (
+          {data.product.map((prod, index) => (
             <div key={index} className={c.values}>
               <div>
                 <span>Наименование продукта</span>
@@ -291,8 +325,10 @@ const EditClient = ({setActive}) => {
                   type="text"
                   placeholder="Введите наименование продукта"
                   value={prod.name}
-                  onChange={e => updateArrayField('product', index, 'name', e.target.value)}
-                  />
+                  onChange={(e) =>
+                    updateArrayField("product", index, "name", e.target.value)
+                  }
+                />
               </div>
               <div>
                 <span>Стоимость услуги</span>
@@ -300,8 +336,10 @@ const EditClient = ({setActive}) => {
                   type="text"
                   placeholder="Введите стоимость"
                   value={prod.assigned}
-                  onChange={e => updateArrayField('product', index, 'price', e.target.value)}
-                  />
+                  onChange={(e) =>
+                    updateArrayField("product", index, "price", e.target.value)
+                  }
+                />
               </div>
               <div>
                 <span>Количество</span>
@@ -309,12 +347,13 @@ const EditClient = ({setActive}) => {
                   type="number"
                   placeholder="Введите количество"
                   value={prod.amount}
-                  onChange={e => updateArrayField('product', index, 'amount', e.target.value)}
+                  onChange={(e) =>
+                    updateArrayField("product", index, "amount", e.target.value)
+                  }
                 />
               </div>
             </div>
-            ))
-          }
+          ))}
         </form>
         <button onClick={() => setCountSell(countSells + 1)}>
           <img src={Icons.plus} alt="plus" />
@@ -323,7 +362,15 @@ const EditClient = ({setActive}) => {
       </div>
       <div className={c.res}>
         <div className={c.left}>
-          <h1>К оплате: {data.services.reduce((a,b) => a+=Number(b.price), 0) + data.product.reduce((a,b) => (a+=Number(b.price))*b.amount, 0) } сом</h1>
+          <h1>
+            К оплате:{" "}
+            {data.services.reduce((a, b) => (a += Number(b.price)), 0) +
+              data.product.reduce(
+                (a, b) => (a += Number(b.price)) * b.amount,
+                0
+              )}{" "}
+            сом
+          </h1>
           <form>
             <div>
               <input
@@ -331,8 +378,10 @@ const EditClient = ({setActive}) => {
                 id="Mkassa"
                 name="payment"
                 value="Mkassa"
-                checked={data.payment === 'Mkassa'}
-                onChange={e => setData(prev => ({ ...prev, payment: e.target.value }))}
+                checked={data.payment === "Mkassa"}
+                onChange={(e) =>
+                  setData((prev) => ({ ...prev, payment: e.target.value }))
+                }
               />
               <label htmlFor="Mkassa">Mkassa</label>
             </div>
@@ -342,8 +391,10 @@ const EditClient = ({setActive}) => {
                 id="full"
                 name="payment"
                 value="full"
-                checked={data.payment === 'full'}
-                onChange={e => setData(prev => ({ ...prev, payment: e.target.value }))}
+                checked={data.payment === "full"}
+                onChange={(e) =>
+                  setData((prev) => ({ ...prev, payment: e.target.value }))
+                }
               />
               <label htmlFor="full">Оплата полностью</label>
             </div>
@@ -353,18 +404,59 @@ const EditClient = ({setActive}) => {
                 id="credit"
                 name="payment"
                 value="credit"
-                checked={data.payment === 'credit'}
-                onChange={e => setData(prev => ({ ...prev, payment: e.target.value }))}
+                checked={data.payment === "credit"}
+                onChange={(e) =>
+                  setData((prev) => ({ ...prev, payment: e.target.value }))
+                }
               />
               <label htmlFor="credit">В кредит</label>
             </div>
           </form>
-
+          <div className={c.line}></div>
+          <form>
+            <div>
+              <input
+                type="radio"
+                id="Оплачено"
+                name="status"
+                value="Оплачено"
+                checked={data.status === "Оплачено"}
+                onChange={(e) =>
+                  setData((prev) => ({ ...prev, status: e.target.value }))
+                }
+              />
+              <label htmlFor="Оплачено">Оплачено</label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="Бронь"
+                name="status"
+                value="Бронь"
+                checked={data.status === "Бронь"}
+                onChange={(e) =>
+                  setData((prev) => ({ ...prev, status: e.target.value }))
+                }
+              />
+              <label htmlFor="Бронь">Бронь</label>
+            </div>
+            <div>
+              <input
+                type="radio"
+                id="Отмена"
+                name="status"
+                value="Отмена"
+                checked={data.status === "Отмена"}
+                onChange={(e) =>
+                  setData((prev) => ({ ...prev, status: e.target.value }))
+                }
+              />
+              <label htmlFor="Отмена">Отмена</label>
+            </div>
+          </form>
         </div>
         <div className={c.right}>
-          <button onClick={() => setActive(false)}>
-            Отменить
-          </button>
+          <button onClick={() => setActive(false)}>Отменить</button>
           <button onClick={() => handleAddClient()}>
             <img src={Icons.addGreen} alt="add" />
             Добавить клиента
@@ -372,14 +464,13 @@ const EditClient = ({setActive}) => {
         </div>
       </div>
 
-      {
-        active ?
+      {active ? (
         <Components.AddTime type={type} setActive={setActiveState} />
-        :
-        null
-      }
+      ) : null}
     </div>
-  )
+  );
 }
 
 export default EditClient
+
+

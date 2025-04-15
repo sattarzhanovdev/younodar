@@ -6,7 +6,8 @@ import { API } from '../../api'
 const ClientsReport = () => {
   const [dailyReport, setDailyReport] = React.useState({
     clients: 0,
-    expenses: 0
+    expenses: 0, 
+    daily: 0
   });
 
   React.useEffect(() => {
@@ -18,6 +19,14 @@ const ClientsReport = () => {
     API.getDailyExpenses()
       .then(res => {
         setDailyReport(prev => ({ ...prev, expenses: res.data.spent_today }));
+      });
+
+    API.getMonthlyData()
+      .then(res => {
+        setDailyReport(prev => ({
+          ...prev,
+          daily: res.data.daily_profit
+        }));
       });
   }, []);
 
@@ -47,7 +56,7 @@ const ClientsReport = () => {
           <h3>Касса на сегодня</h3>
         </div>
         <div className={c.down}>
-          <h1>0 сом</h1>
+          <h1>{dailyReport.daily} сом</h1>
         </div>
       </div>
     </div>

@@ -6,6 +6,9 @@ const Main = () => {
     <div>
       <Components.MainReport />
       <Components.WorkersBenefit />
+      <Components.Kassa />
+      <Components.Appointments />
+      <Components.Cabinets />
     </div>
   )
 }

@@ -1,17 +1,25 @@
 import React from 'react'
 import c from './mainReport.module.scss'
 import { Icons } from '../../assets/icons'
+import { API } from '../../api'
 
 const MainReport = () => {
+  const [ data, setData ] = React.useState(null)
+
+  React.useEffect(() => {
+    API.getMonthlyData()
+      .then(res => setData(res.data))
+  }, [])
+
   return (
     <div className={c.reports}>
       <div className={c.card}>
         <div className={c.up}>
           <img src={Icons.date} alt="date" />
-          <h3>Итого оборота за месяц</h3>
+          <h3>Оборота за месяц/Прибыль</h3>
         </div>
         <div className={c.down}>
-          <h1>5600.00$</h1>
+          <h1>{data && data.monthly_revenue} / {data && data.monthly_profit}</h1>
           <button>Посмотреть</button>
         </div>
       </div>
@@ -21,7 +29,7 @@ const MainReport = () => {
           <h3>Расходы за месяц</h3>
         </div>
         <div className={c.down}>
-          <h1>250.00$</h1>
+          <h1>{data && data.monthly_expense}</h1>
           <button>Посмотреть</button>
         </div>
       </div>
@@ -31,7 +39,7 @@ const MainReport = () => {
           <h3>Клиентов за месяц</h3>
         </div>
         <div className={c.down}>
-          <h1>250.00$</h1>
+          <h1>{data && data.monthly_clients}</h1>
           <button>Посмотреть</button>
         </div>
       </div>

@@ -137,6 +137,22 @@
         flex-direction: row;
         gap: 30px;
       }
+      .valuesNew{
+        .valuesIn{
+          display: flex;
+          flex-direction: row;
+          gap: 30px;
+        }
+      }
+      .services{
+        h3{
+          margin: 0;
+        }
+        input{
+          box-shadow: none;
+        }
+        
+      }
       div{
         display: flex;
         flex-direction: column;
@@ -176,7 +192,6 @@
         gap: 10px;
         font-size: 17px;
 
-
         input{
           width: 24px;
           height: 24px;
@@ -199,6 +214,17 @@
             font-size: 15px;
             font-weight: 400;
             margin: 0;
+
+            &.medium{
+              color: #EDBB00;
+              border: 1px solid #EDBB00;
+            }
+    
+            &.hard{
+              color: #F00;
+              border: 1px solid #F00;
+            }
+            
             &.adding{
               display: flex;
               align-items: center;
@@ -277,6 +303,11 @@
             line-height: 22px; /* 129.412% */
           }
         }
+      }
+      .line{
+        width: 3px;
+        height: 30px;
+        background: #216EFD;
       }
     }
 
